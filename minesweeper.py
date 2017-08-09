@@ -1,1 +1,1 @@
-print "Hello there!"
+""" The Minesweeper Game """
