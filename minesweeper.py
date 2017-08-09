@@ -1,1 +1,4 @@
-""" The Minesweeper Game """
+""" 
+    The Minesweeper Game 
+    Author: Divyam Gupta
+"""
