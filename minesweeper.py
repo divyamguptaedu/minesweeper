@@ -12,6 +12,9 @@ def welcome():
 	print("                                            | |              ")
 	print("                                            |_|              ")
 
+def show_game_over_message():
+	print "Game Over!"
+
 def show_menu():
 	player_info = {}
 	player_info["name"] = raw_input("Please enter your name: ")
@@ -24,9 +27,10 @@ def show_menu():
 
 	return player_info
 
-def show_gameboard(layout):
-	rows_count = layout["rows"]
-	cols_count = layout["cols"]
+
+def show_gameboard(grid):
+	rows_count = len(grid)
+	cols_count = len(grid[0])
 
 	alpha = "abcdefghijklmnopqrstuvwxyz"
 	column_label = "		  "
@@ -41,10 +45,10 @@ def show_gameboard(layout):
 	print column_label
 	print horizontal_line
 
-	for row in range(1, rows_count + 1):
-		row_layout = '{0:14} |'.format(row)
-		for i in range(0, rows_count):
-			row_layout = row_layout + "    |"
+	for row in range(0, rows_count):
+		row_layout = '{0:14} |'.format(row + 1)
+		for i in grid[row]:
+			row_layout = row_layout + "  " + str(i) + " |"
 		
 		print row_layout
 		print horizontal_line
@@ -71,10 +75,10 @@ def create_gameboard(player_info):
 		gameboard_layout["cols"] = 20
 		gameboard_layout["mines"] = 40
 
-	show_gameboard(gameboard_layout)
-	
 	in_memory_grid = [[" " for j in range(gameboard_layout["cols"])] for i in range(gameboard_layout["rows"])]
 
+	show_gameboard(in_memory_grid)
+	
 	return (in_memory_grid, gameboard_layout["mines"])
 
 def if_valid_row(in_memory_grid, user_input_row):
@@ -110,16 +114,16 @@ def get_user_input_validate(in_memory_grid):
 		user_input_col = raw_input("Type COLUMN index : ")
 		is_col_valid = if_valid_col(in_memory_grid, str(user_input_col))
 	alpha = "abcdefghijklmnopqrstuvwxyz"
-	user_input_col = alpha.index(user_input_col.lower())
+	user_input_col_index = alpha.index(user_input_col.lower())
 
 	""" Flag """
-	user_input_flag = raw_input("Do you want to place FLAG at (" + str(user_input_row) + ", " + str(user_input_col) + ")? (y/n) : ")
+	user_input_flag = raw_input("Do you want to place FLAG at (" + str(user_input_row) + ", " + str(user_input_col).upper() + ")? (y/n) : ")
 	if(user_input_flag.upper()) == "Y":
 		flag = True
 	else:
 		flag = False
 
-	return {"input_row": (int(user_input_row) - 1), "input_col": int(user_input_col), "flag": flag}
+	return {"input_row": (int(user_input_row) - 1), "input_col": int(user_input_col_index), "flag": flag}
 
 def get_random_position(grid):
 	number_of_rows = len(grid)
@@ -145,7 +149,7 @@ def insert_mines(grid, number_of_mines, input_cell_info):
 		mines_cord.append(random_cell)
 
 	for row, col in mines_cord:
-		grid[row][col] = -1
+		grid[row][col] = 9
 
 	return {"grid": grid, "mines_cord": mines_cord}
 
@@ -160,7 +164,7 @@ def calculate_value(grid, row, col):
 			elif -1 < (row + i) < len(grid) and -1 < (col + j) < len(grid[0]):
 				neighbors_values.append(grid[row + i][col + j])
 
-	return int(neighbors_values.count(-1))
+	return int(neighbors_values.count(9))
 
 
 def insert_numbers(grid):
@@ -170,7 +174,7 @@ def insert_numbers(grid):
 	for row in range(number_of_rows):
 		for col in range(number_of_cols):
 			cell = grid[row][col]
-			if cell != -1:
+			if cell != 9:
 				grid[row][col] = calculate_value(grid, row, col)
 
 	return grid
@@ -208,6 +212,16 @@ def handle_flag(in_memory_grid, input_cell_info, flags_cord):
 	else:
 		return
 
+def explosion(solution_grid, input_cell_info, flags_cord):
+	row = input_cell_info["input_row"]
+	col = input_cell_info["input_col"]
+	
+	if solution_grid[row][col] == 9 and (row, col) not in flags_cord:
+		return True
+	else:
+		return False
+
+
 def main():
 
 	flags_cord = []
@@ -226,13 +240,20 @@ def main():
 			solution_grid = grid_info["grid"]
 
 		handle_flag(in_memory_grid, input_cell_info, flags_cord)
+		
+		if explosion(solution_grid, input_cell_info, flags_cord):
+			show_game_over_message()
+			return
+
+
+		
+
+
+
 			
-		for row in in_memory_grid:
-			print row
-
-		print mines_cord
-
-		print flags_cord
+		for i in solution_grid:
+			print i
+		show_gameboard(in_memory_grid)
 
 
 main()
