@@ -221,6 +221,50 @@ def explosion(solution_grid, input_cell_info, flags_cord):
 	else:
 		return False
 
+def showcells(grid, currgrid, rowno, colno):
+    # Exit function if the cell was already shown
+    if currgrid[rowno][colno] != ' ':
+        return
+
+    # Show current cell
+    currgrid[rowno][colno] = grid[rowno][colno]
+
+    # Get the neighbors if the cell is empty
+    if grid[rowno][colno] == '0':
+        for r, c in getneighbors(grid, rowno, colno):
+            # Repeat function for each neighbor that doesn't have a flag
+            if currgrid[r][c] != 'F':
+                showcells(grid, currgrid, r, c)
+
+
+def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
+	row = input_cell_info["input_row"]
+	col = input_cell_info["input_col"]
+
+	if in_memory_grid[row][col] == " ":
+		in_memory_grid[row][col] = solution_grid[row][col]
+
+		if solution_grid[row][col] == 0:
+			neighbors = []
+
+			for i in [-1, 0, 1]:
+				for j in [-1, 0, 1]:
+					if i == 0 and j == 0:
+						continue
+					elif -1 < (row + i) < len(solution_grid) and -1 < (col + j) < len(solution_grid[0]):
+						neighbors.append((row + i, col + j))
+
+			for neighbor in neighbors:
+				neighbor_row = neighbor[0]
+				neighbor_col = neighbor[1]
+				neighbor_cell_info = {"input_row": neighbor_row, "input_col": neighbor_col}
+				
+				if solution_grid[neighbor_row][neighbor_col] != 9:
+					explore(in_memory_grid, solution_grid, neighbor_cell_info, flags_cord)
+	else:
+		return
+
+
 
 def main():
 
@@ -244,6 +288,10 @@ def main():
 		if explosion(solution_grid, input_cell_info, flags_cord):
 			show_game_over_message()
 			return
+
+		explore(in_memory_grid, solution_grid, input_cell_info, flags_cord)
+
+
 
 
 		
