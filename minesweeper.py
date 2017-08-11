@@ -75,11 +75,11 @@ def create_gameboard(player_info):
 		gameboard_layout["cols"] = 20
 		gameboard_layout["mines"] = 40
 
-	in_memory_grid = [[" " for j in range(gameboard_layout["cols"])] for i in range(gameboard_layout["rows"])]
+	grid = [[" " for j in range(gameboard_layout["cols"])] for i in range(gameboard_layout["rows"])]
 
-	show_gameboard(in_memory_grid)
+	show_gameboard(grid)
 	
-	return (in_memory_grid, gameboard_layout["mines"])
+	return (grid, gameboard_layout["mines"])
 
 def if_valid_row(in_memory_grid, user_input_row):
 	board_dimensions = {"rows": str(range(1, (len(in_memory_grid) + 1)))}
@@ -118,6 +118,7 @@ def get_user_input_validate(in_memory_grid):
 
 	""" Flag """
 	user_input_flag = raw_input("Do you want to place FLAG at (" + str(user_input_row) + ", " + str(user_input_col).upper() + ")? (y/n) : ")
+
 	if(user_input_flag.upper()) == "Y":
 		flag = True
 	else:
@@ -266,10 +267,10 @@ def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
 
 
 
-def main():
+def minesweeper():
 
 	flags_cord = []
-	mines_cord = []
+	mines_cord = [-1]
 	solution_grid = []
 
 	welcome()
@@ -280,6 +281,7 @@ def main():
 		if set(flags_cord) == set(mines_cord):
 			print "You win!"
 			return
+
 		input_cell_info = get_user_input_validate(in_memory_grid)
 		if solution_grid == []:
 			grid_info = create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info)
@@ -298,4 +300,4 @@ def main():
 
 		show_gameboard(in_memory_grid)
 
-main()
+minesweeper()
