@@ -277,6 +277,9 @@ def main():
 	(in_memory_grid, number_of_mines) = create_gameboard(player_info)
 	
 	while True:
+		if set(flags_cord) == set(mines_cord):
+			print "You win!"
+			return
 		input_cell_info = get_user_input_validate(in_memory_grid)
 		if solution_grid == []:
 			grid_info = create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info)
@@ -291,49 +294,8 @@ def main():
 
 		explore(in_memory_grid, solution_grid, input_cell_info, flags_cord)
 
+		cell = in_memory_grid[input_cell_info["input_row"]][input_cell_info["input_col"]]
 
-
-
-		
-
-
-
-			
-		for i in solution_grid:
-			print i
 		show_gameboard(in_memory_grid)
 
-
 main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
