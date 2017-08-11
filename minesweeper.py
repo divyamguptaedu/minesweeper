@@ -1,144 +1,219 @@
-""" 
-    The Minesweeper Game 
-    Author: Divyam Gupta
-"""
-
-def welcome():
-	""" Created using http://patorjk.com/software/taag/ """
-	print("  __  __ _                                                   ")
-	print(" |  \/  (_)                                                  ")
-	print(" | \  / |_ _ __   ___  _____      _____  ___ _ __   ___ _ __ ")
-	print(" | |\/| | | '_ \ / _ \/ __\ \ /\ / / _ \/ _ \ '_ \ / _ \ '__|")
-	print(" | |  | | | | | |  __/\__ \\\ V  V /  __/  __/ |_) |  __/ |   ")
-	print(" |_|  |_|_|_| |_|\___||___/ \_/\_/ \___|\___| .__/ \___|_|   ")
-	print("                                            | |              ")
-	print("                                            |_|              ")
-
-def show_menu():
-	player_info = {}
-	player_info["name"] = raw_input("Please enter your name: ")
-	print("")
-	print("Hello " + player_info["name"] + "! Now, on the scale of 1 to 3, ")
-	player_info["difficulty_level"] = raw_input("Please choose the difficulty level: ")
-	print("")
-	print("Type the ROW number followed by the COLUMN and press ENTER to explore.")
-	print("Add F to desired cell's coordinates to add/remove flag.")
-
-	return player_info
-
-def show_gameboard(layout):
-	rows_count = layout["rows"]
-	cols_count = layout["cols"]
-
-	alpha = "abcdefghijklmnopqrstuvwxyz"
-	column_label = "		  "
-	for position in range(0, cols_count):
-		column_label = column_label + alpha[position].upper() + "    "
-
-	horizontal_line = "		" + (5 * cols_count * '-')
-
-	for i in range(4):
-		print ""	
-
-	print column_label
-	print horizontal_line
-
-	for row in range(1, rows_count + 1):
-		row_layout = '{0:14} |'.format(row)
-		for i in range(0, rows_count):
-			row_layout = row_layout + "    |"
-		
-		print row_layout
-		print horizontal_line
-
-	for i in range(4):
-		print ""
-
-def create_gameboard(player_info):
-	difficulty_level = int(player_info["difficulty_level"])
-	gameboard_layout = {}
-
-	if difficulty_level == 1:
-		gameboard_layout["rows"] = 10
-		gameboard_layout["cols"] = 10
-		gameboard_layout["mines"] = 10
-
-	if difficulty_level == 2:
-		gameboard_layout["rows"] = 15
-		gameboard_layout["cols"] = 15
-		gameboard_layout["mines"] = 20
-
-	if difficulty_level == 3:
-		gameboard_layout["rows"] = 20
-		gameboard_layout["cols"] = 20
-		gameboard_layout["mines"] = 40
-
-	show_gameboard(gameboard_layout)
-	
-	in_memory_grid = [[" " for j in range(gameboard_layout["cols"])] for i in range(gameboard_layout["rows"])]
-
-	return (in_memory_grid, gameboard_layout["mines"])
-
-def if_valid_input(in_memory_grid, input):
-	input_length = len(input)
-
-	row = -1
-	col = -1
-	flag = ""
-
-	alpha = "abcdefghijklmnopqrstuvwxyz"
-	board_dimensions = {"rows": range(1, (len(in_memory_grid) + 1)), "cols": alpha[0:len(in_memory_grid[0])].upper()}
-
-	if input_length == 2:
-		row = int(input[0])
-		col = input[1].upper()
-		
-		if row in board_dimensions["rows"] and col in board_dimensions["cols"]:
-			return (row, col)
-
-	if input_length == 3 and input[2].upper() == "F":
-		row = int(input[0])
-		col = input[1].upper()
-		flag = input[2].upper()
-
-		if row in board_dimensions["rows"] and col in board_dimensions["cols"]:
-			row_index, col_index = (row - 1, alpha.upper().index(col))
-
-			#TODO
-			if in_memory_grid[row_index][col_index] == " ":
-				in_memory_grid[row_index][col_index] = "F"
-			elif in_memory_grid[row_index][col_index] == "F":
-				in_memory_grid[row_index][col_index] = " "
-
-			return (row, col)
-
-	else:
-		return -1
-
-"""def make_grid(in_memory_grid, mines, first_cell):
-	grid = [["0" for j in range(len(in_memory_grid))] for i in range(len(in_memory_grid))]"""
+"""A command line version of Minesweeper"""
+import random
+import re
+import time
+from string import ascii_lowercase
 
 
-def main():
+def setupgrid(gridsize, start, numberofmines):
+    emptygrid = [['0' for i in range(gridsize)] for i in range(gridsize)]
 
-	flag_cord = []
-	mine_cord = []
-	display_grid = []
+    mines = getmines(emptygrid, start, numberofmines)
 
-	welcome()
-	player_info = show_menu()
-	(in_memory_grid, mines) = create_gameboard(player_info)
-	
-	while True:
-		user_input = raw_input("Type ROW index followed by the COLUMN label : ")
-		first_cell = if_valid_input(in_memory_grid, str(user_input))
-		"""if first_cell != -1:
-			if display_grid == []:
-				display_grid = make_grid(in_memory_grid, mines, first_cell)"""
-		print first_cell
+    for i, j in mines:
+        emptygrid[i][j] = 'X'
 
-	
+    grid = getnumbers(emptygrid)
+
+    return (grid, mines)
 
 
+def showgrid(grid):
+    gridsize = len(grid)
 
-main()
+    horizontal = '   ' + (4 * gridsize * '-') + '-'
+
+    # Print top column letters
+    toplabel = '     '
+
+    for i in ascii_lowercase[:gridsize]:
+        toplabel = toplabel + i + '   '
+
+    print(toplabel + '\n' + horizontal)
+
+    # Print left row numbers
+    for idx, i in enumerate(grid):
+        row = '{0:2} |'.format(idx + 1)
+
+        for j in i:
+            row = row + ' ' + j + ' |'
+
+        print(row + '\n' + horizontal)
+
+    print('')
+
+
+def getrandomcell(grid):
+    gridsize = len(grid)
+
+    a = random.randint(0, gridsize - 1)
+    b = random.randint(0, gridsize - 1)
+
+    return (a, b)
+
+
+def getneighbors(grid, rowno, colno):
+    gridsize = len(grid)
+    neighbors = []
+
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if i == 0 and j == 0:
+                continue
+            elif -1 < (rowno + i) < gridsize and -1 < (colno + j) < gridsize:
+                neighbors.append((rowno + i, colno + j))
+
+    return neighbors
+
+
+def getmines(grid, start, numberofmines):
+    mines = []
+    neighbors = getneighbors(grid, *start)
+
+    for i in range(numberofmines):
+        cell = getrandomcell(grid)
+        while cell == start or cell in mines: #or cell in neighbors
+            cell = getrandomcell(grid)
+        mines.append(cell)
+
+    return mines
+
+
+def getnumbers(grid):
+    for rowno, row in enumerate(grid):
+        for colno, cell in enumerate(row):
+            if cell != 'X':
+                # Gets the values of the neighbors
+                values = [grid[r][c] for r, c in getneighbors(grid,
+                                                              rowno, colno)]
+
+                # Counts how many are mines
+                grid[rowno][colno] = str(values.count('X'))
+
+    return grid
+
+
+def showcells(grid, currgrid, rowno, colno):
+    # Exit function if the cell was already shown
+    if currgrid[rowno][colno] != ' ':
+        return
+
+    # Show current cell
+    currgrid[rowno][colno] = grid[rowno][colno]
+
+    # Get the neighbors if the cell is empty
+    if grid[rowno][colno] == '0':
+        for r, c in getneighbors(grid, rowno, colno):
+            # Repeat function for each neighbor that doesn't have a flag
+            if currgrid[r][c] != 'F':
+                showcells(grid, currgrid, r, c)
+
+
+def playagain():
+    choice = raw_input('Play again? (y/n): ')
+
+    return choice.lower() == 'y'
+
+
+def parseinput(inputstring, gridsize, helpmessage):
+    cell = ()
+    flag = False
+    message = "Invalid cell. " + helpmessage
+
+    pattern = r'([a-{}])([0-9]+)(f?)'.format(ascii_lowercase[gridsize - 1])
+    validinput = re.match(pattern, inputstring)
+
+    if inputstring == 'help':
+        message = helpmessage
+
+    elif validinput:
+        rowno = int(validinput.group(2)) - 1
+        colno = ascii_lowercase.index(validinput.group(1))
+        flag = bool(validinput.group(3))
+
+        if -1 < rowno < gridsize:
+            cell = (rowno, colno)
+            message = ''
+
+    return {'cell': cell, 'flag': flag, 'message': message}
+
+
+def playgame():
+    gridsize = 10
+    numberofmines = 10
+
+    currgrid = [[' ' for i in range(gridsize)] for i in range(gridsize)]
+
+    grid = []
+    flags = []
+    starttime = 0
+
+    helpmessage = "Type the column followed by the row (eg. a5). To put or remove a flag, add 'f' to the cell (eg. a5f)."
+
+    showgrid(currgrid)
+    print(helpmessage)
+    print("Type 'help' to show this message again.\n")
+
+    while True:
+        minesleft = numberofmines - len(flags)
+        prompt = raw_input('Enter the cell ({} mines left): '.format(minesleft))
+        result = parseinput(prompt, gridsize, helpmessage + '\n')
+
+        message = result['message']
+        cell = result['cell']
+
+        if cell:
+            print('\n\n')
+            rowno, colno = cell
+            currcell = currgrid[rowno][colno]
+            flag = result['flag']
+
+            if not grid:
+                grid, mines = setupgrid(gridsize, cell, numberofmines)
+            if not starttime:
+                starttime = time.time()
+
+            if flag:
+                # Add a flag if the cell is empty
+                if currcell == ' ':
+                    currgrid[rowno][colno] = 'F'
+                    flags.append(cell)
+                # Remove the flag if there is one
+                elif currcell == 'F':
+                    currgrid[rowno][colno] = ' '
+                    flags.remove(cell)
+                else:
+                    message = 'Cannot put a flag there'
+
+            # If there is a flag there, show a message
+            elif cell in flags:
+                message = 'There is a flag there'
+
+            elif grid[rowno][colno] == 'X':
+                print('Game Over\n')
+                showgrid(grid)
+                if playagain():
+                    playgame()
+                return
+
+            elif currcell == ' ':
+                showcells(grid, currgrid, rowno, colno)
+
+            else:
+                message = "That cell is already shown"
+
+            if set(flags) == set(mines):
+                minutes, seconds = divmod(int(time.time() - starttime), 60)
+                print(
+                    'You Win. '
+                    'It took you {} minutes and {} seconds.\n'.format(minutes,
+                                                                      seconds))
+                showgrid(grid)
+                if playagain():
+                    playgame()
+                return
+
+        showgrid(currgrid)
+        print(message)
+
+playgame()
