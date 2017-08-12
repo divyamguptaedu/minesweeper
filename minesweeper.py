@@ -1,9 +1,21 @@
+"""
+	M I N E S W E E P E R
+
+	Description: Command Line ASCII based Minesweeper Game
+	Author: Divyam Gupta
+	Github Link: https://github.com/divyamguptaedu/minesweeper
+
+"""
+
 import matplotlib.pyplot as plt
 from random import randint
 import time
 
 def welcome():
-	""" Created using http://patorjk.com/software/taag/ """
+	""" 
+		Displays the Minesweeper Logo
+		Created using http://patorjk.com/software/taag/ 
+	"""
 	print("  __  __ _                                                   ")
 	print(" |  \/  (_)                                                  ")
 	print(" | \  / |_ _ __   ___  _____      _____  ___ _ __   ___ _ __ ")
@@ -14,7 +26,10 @@ def welcome():
 	print("                                            |_|              ")
 
 def show_game_over_message(solution_grid):
-	""" Created using http://patorjk.com/software/taag/ """
+	"""
+		Displays the Game Over message along with the correct soultion 
+		Created using http://patorjk.com/software/taag/ 
+	"""
 	print(" _____ ____  _      _____   ____  _     _____ ____ ")
 	print("/  __//  _ \/ \__/|/  __/  /  _ \/ \ |\/  __//  __\\")
 	print("| |  _| / \|| |\/|||  \    | / \|| | //|  \  |  \/|")
@@ -36,7 +51,10 @@ def show_game_over_message(solution_grid):
 	show_gameboard(solution_grid)
 
 def show_you_got_it_message():
-	""" Created using http://patorjk.com/software/taag/ """
+	""" 
+		Displays "You Got It" message
+		Created using http://patorjk.com/software/taag/ 
+	"""
 	print("	 ____  ____                   ______           _     _____  _    _  ")
 	print("|_  _||_  _|                .' ___  |         / |_  |_   _|/ |_ | | ")
 	print("  \ \  / / .--.   __   _   / .'   \_|   .--. `| |-'   | | `| |-'| | ")
@@ -45,6 +63,9 @@ def show_you_got_it_message():
 	print("  |______|'.__.'  '.__.'_/  `._____.'  '.__.' \__/  |_____|\__/ (_) ")
 
 def show_menu():
+	"""
+		Displays menu options at the beginning of the game
+	"""
 	player_info = {}
 	player_info["name"] = raw_input("Please enter your name: ")
 	print("")
@@ -57,6 +78,9 @@ def show_menu():
 	return player_info
 
 def show_gameboard(grid):
+	"""
+		Displays the grid passed in the traditional minesweeper format
+	"""
 	rows_count = len(grid)
 	cols_count = len(grid[0])
 
@@ -85,6 +109,9 @@ def show_gameboard(grid):
 		print ""
 
 def create_gameboard(player_info):
+	"""
+		Creates the game board based of the difficulty level
+	"""
 	difficulty_level = int(player_info["difficulty_level"])
 	gameboard_layout = {}
 
@@ -110,6 +137,9 @@ def create_gameboard(player_info):
 	return (grid, gameboard_layout["mines"])
 
 def if_valid_row(in_memory_grid, user_input_row):
+	"""
+		Checks if the row inputted by the user is valid as per our current grid
+	"""
 	board_dimensions = {"rows": str(range(1, (len(in_memory_grid) + 1)))}
 	print board_dimensions
 	if (user_input_row) in board_dimensions["rows"]:
@@ -118,6 +148,9 @@ def if_valid_row(in_memory_grid, user_input_row):
 		return False
 
 def if_valid_col(in_memory_grid, user_input_col):
+	"""
+		Checks if the coulmn inputted by the user is valid as per our current grid
+	"""
 	alpha = "abcdefghijklmnopqrstuvwxyz"
 	board_dimensions = {"cols": alpha[0:len(in_memory_grid[0])].upper()}
 	if str(user_input_col).upper() in board_dimensions["cols"]:
@@ -126,7 +159,11 @@ def if_valid_col(in_memory_grid, user_input_col):
 		return False
 
 def get_user_input_validate(in_memory_grid):
-	""" Row """
+	"""
+		Triggers the input logic and validates the user input
+	"""
+
+	""" Row Logic """
 	user_input_row = raw_input("Type ROW index : ")
 	is_row_valid = if_valid_row(in_memory_grid, str(user_input_row))
 	while (not is_row_valid):
@@ -134,7 +171,7 @@ def get_user_input_validate(in_memory_grid):
 		user_input_row = raw_input("Type ROW index : ")
 		is_row_valid = if_valid_row(in_memory_grid, str(user_input_row))
 
-	""" Column """
+	""" Column Logic """
 	user_input_col = raw_input("Type COLUMN index : ")
 	is_col_valid = if_valid_col(in_memory_grid, str(user_input_col))
 	while (not is_col_valid):
@@ -144,10 +181,10 @@ def get_user_input_validate(in_memory_grid):
 	alpha = "abcdefghijklmnopqrstuvwxyz"
 	user_input_col_index = alpha.index(user_input_col.lower())
 
-	""" Flag """
-	user_input_flag = raw_input("Do you want to place FLAG at (" + str(user_input_row) + ", " + str(user_input_col).upper() + ")? (y/n) : ")
+	""" Flag Logic """
+	user_input_flag = raw_input("Do you want to place/remove FLAG at (" + str(user_input_row) + ", " + str(user_input_col).upper() + ")? (y/n) : ")
 
-	if(user_input_flag.upper()) == "Y":
+	if(user_input_flag.upper()) == "Y" or (user_input_flag.upper()) == "F":
 		flag = True
 	else:
 		flag = False
@@ -155,6 +192,9 @@ def get_user_input_validate(in_memory_grid):
 	return {"input_row": (int(user_input_row) - 1), "input_col": int(user_input_col_index), "flag": flag}
 
 def get_random_position(grid):
+	"""
+		Picks a random position in the grid
+	"""
 	number_of_rows = len(grid)
 	number_of_cols = len(grid[0])
 
@@ -164,6 +204,9 @@ def get_random_position(grid):
 	return (row, col)
 
 def insert_mines(grid, number_of_mines, input_cell_info):
+	"""
+		Insert mines at random positions in the given grid
+	"""
 	mines_cord = []
 	input_cell = (input_cell_info["input_row"], input_cell_info["input_col"])
 
@@ -181,6 +224,9 @@ def insert_mines(grid, number_of_mines, input_cell_info):
 	return {"grid": grid, "mines_cord": mines_cord}
 
 def calculate_value(grid, row, col):
+	"""
+		Calculates the value for a given cell as per minesweeper rules	
+	"""
 	neighbors_values = []
 
 	for i in [-1, 0, 1]:
@@ -193,6 +239,9 @@ def calculate_value(grid, row, col):
 	return int(neighbors_values.count(9))
 
 def insert_numbers(grid):
+	"""
+		Fills the given grid with numbers computed as per minesweeper rules
+	"""
 	number_of_rows = len(grid)
 	number_of_cols = len(grid[0])
 
@@ -205,6 +254,9 @@ def insert_numbers(grid):
 	return grid
 
 def create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info):
+	"""
+		Creates a minesweeper board after the user has inputted info for the first cell
+	"""
 	grid_dimension = {"row": len(in_memory_grid), "col": len(in_memory_grid[0])}
 	
 	new_grid = [[0 for j in range(grid_dimension["col"])] for i in range(grid_dimension["row"])]
@@ -218,6 +270,9 @@ def create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info):
 	return {"grid": new_grid_with_mines_and_numbers, "mines_cord": mines_cord}
 
 def handle_flag(in_memory_grid, input_cell_info, flags_cord, time_stamp):
+	"""
+		Handles the flag cases
+	"""
 	if input_cell_info["flag"]:
 		time_rn = time.time()
 		time_stamp.append(time_rn)
@@ -238,6 +293,9 @@ def handle_flag(in_memory_grid, input_cell_info, flags_cord, time_stamp):
 		return
 
 def explosion(solution_grid, input_cell_info, flags_cord):
+	"""
+		Cases in which the user makes a mistake and the mine explodes
+	"""
 	row = input_cell_info["input_row"]
 	col = input_cell_info["input_col"]
 	
@@ -246,22 +304,10 @@ def explosion(solution_grid, input_cell_info, flags_cord):
 	else:
 		return False
 
-def showcells(grid, currgrid, rowno, colno):
-    # Exit function if the cell was already shown
-    if currgrid[rowno][colno] != ' ':
-        return
-
-    # Show current cell
-    currgrid[rowno][colno] = grid[rowno][colno]
-
-    # Get the neighbors if the cell is empty
-    if grid[rowno][colno] == '0':
-        for r, c in getneighbors(grid, rowno, colno):
-            # Repeat function for each neighbor that doesn't have a flag
-            if currgrid[r][c] != 'F':
-                showcells(grid, currgrid, r, c)
-
 def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
+	"""
+		Logic that uncovers the grid as the game progresses
+	"""
 	row = input_cell_info["input_row"]
 	col = input_cell_info["input_col"]
 
@@ -270,7 +316,6 @@ def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
 
 		if solution_grid[row][col] == 0:
 			neighbors = []
-
 			for i in [-1, 0, 1]:
 				for j in [-1, 0, 1]:
 					if i == 0 and j == 0:
@@ -288,37 +333,61 @@ def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
 	else:
 		return
 
+def generate_report(time_stamp):
+	"""
+		Generates the performance report
+	"""
+	for i in range(4):
+		print ""
+
+	time.sleep(1)
+	print("Generating Performance Report ...")
+	time.sleep(2)
+	start_time = time_stamp[0]
+	time_lst = [time_t - start_time for time_t in time_stamp[1:]]
+	plt.plot(range(1, 11), time_lst, 'ro-', markersize=20, clip_on=False, zorder=100)
+	plt.xlabel('Mines')
+	plt.ylabel('Time Taken (in seconds)')
+	plt.suptitle('Time Taken v/s Mines Identified Plot')
+	plt.show()
+
 def minesweeper():
+	"""
+		The main function.
+		Brings everything together!
+	"""
 
 	flags_cord = []
 	mines_cord = [-1]
 	solution_grid = []
 	time_stamp = []
 
+	# Display Welcome Message
 	welcome()
+
+	# Emulate loading/prossesing delay
 	time.sleep(1)
+
+	# Display Menu
 	player_info = show_menu()
 	time.sleep(1)
+	
+	# Create Gameboard in memory
 	(in_memory_grid, number_of_mines) = create_gameboard(player_info)
 	
+	# Begin Gameplay
 	while True:
+
+		# If all the mines have been identified
 		if set(flags_cord) == set(mines_cord):
 			show_you_got_it_message()
-			for i in range(4):
-				print ""
-			time.sleep(1)
-			print("Generating Performance Report ...")
-			time.sleep(2)
-			start_time = time_stamp[0]
-			time_lst = [time_t - start_time for time_t in time_stamp[1:]]
-			plt.plot(range(1, 11), time_lst, 'ro-', markersize=20, clip_on=False, zorder=100)
-			plt.xlabel('Mines')
-			plt.ylabel('Time Taken (in seconds)')
-			plt.suptitle('Time Taken v/s Mines Identified Plot')
-			plt.show()
+			generate_report(time_stamp)
 			return
 
+		# Get user input and validate
 		input_cell_info = get_user_input_validate(in_memory_grid)
+		
+		# If this is the first move
 		if solution_grid == []:
 			grid_info = create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info)
 			mines_cord = grid_info["mines_cord"]
@@ -326,19 +395,20 @@ def minesweeper():
 			time_rn = time.time()
 			time_stamp.append(time_rn)
 
+		# Check if flag is set
 		handle_flag(in_memory_grid, input_cell_info, flags_cord, time_stamp)
 		
+		# Check if the player made a wrong move
 		if explosion(solution_grid, input_cell_info, flags_cord):
 			show_game_over_message(solution_grid)
 			return
 
+		# Uncover board if valid move
 		explore(in_memory_grid, solution_grid, input_cell_info, flags_cord)
 
-		cell = in_memory_grid[input_cell_info["input_row"]][input_cell_info["input_col"]]
-
+		# Update the gameboard
 		show_gameboard(in_memory_grid)
 
-		for i in solution_grid:
-			print i
 
+# Call the main function
 minesweeper()
