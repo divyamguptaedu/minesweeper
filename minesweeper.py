@@ -1,5 +1,6 @@
+import matplotlib.pyplot as plt
 from random import randint
-
+import time
 
 def welcome():
 	""" Created using http://patorjk.com/software/taag/ """
@@ -12,8 +13,36 @@ def welcome():
 	print("                                            | |              ")
 	print("                                            |_|              ")
 
-def show_game_over_message():
-	print "Game Over!"
+def show_game_over_message(solution_grid):
+	""" Created using http://patorjk.com/software/taag/ """
+	print(" _____ ____  _      _____   ____  _     _____ ____ ")
+	print("/  __//  _ \/ \__/|/  __/  /  _ \/ \ |\/  __//  __\\")
+	print("| |  _| / \|| |\/|||  \    | / \|| | //|  \  |  \/|")
+	print("| |_//| |-||| |  |||  /_   | \_/|| \// |  /_ |    /")
+	print("\____\\_/ \|\_/  \|\____\  \____/\__/  \____\\_/\_\\")
+
+	for i in range(4):
+		print ""
+		time.sleep(.2)
+
+	print "Generating Solution..."
+
+	for i in range(4):
+		print ""
+		time.sleep(.1)
+                                                   
+	time.sleep(1.5)
+
+	show_gameboard(solution_grid)
+
+def show_you_got_it_message():
+	""" Created using http://patorjk.com/software/taag/ """
+	print("	 ____  ____                   ______           _     _____  _    _  ")
+	print("|_  _||_  _|                .' ___  |         / |_  |_   _|/ |_ | | ")
+	print("  \ \  / / .--.   __   _   / .'   \_|   .--. `| |-'   | | `| |-'| | ")
+	print("   \ \/ // .'`\ \[  | | |  | |   ____ / .'`\ \| |     | |  | |  | | ")
+	print("   _|  |_| \__. | | \_/ |, \ `.___]  || \__. || |,   _| |_ | |, |_| ")
+	print("  |______|'.__.'  '.__.'_/  `._____.'  '.__.' \__/  |_____|\__/ (_) ")
 
 def show_menu():
 	player_info = {}
@@ -26,7 +55,6 @@ def show_menu():
 	print("Add F to desired cell's coordinates to add/remove flag.")
 
 	return player_info
-
 
 def show_gameboard(grid):
 	rows_count = len(grid)
@@ -135,8 +163,6 @@ def get_random_position(grid):
 
 	return (row, col)
 
-
-
 def insert_mines(grid, number_of_mines, input_cell_info):
 	mines_cord = []
 	input_cell = (input_cell_info["input_row"], input_cell_info["input_col"])
@@ -154,7 +180,6 @@ def insert_mines(grid, number_of_mines, input_cell_info):
 
 	return {"grid": grid, "mines_cord": mines_cord}
 
-
 def calculate_value(grid, row, col):
 	neighbors_values = []
 
@@ -167,7 +192,6 @@ def calculate_value(grid, row, col):
 
 	return int(neighbors_values.count(9))
 
-
 def insert_numbers(grid):
 	number_of_rows = len(grid)
 	number_of_cols = len(grid[0])
@@ -179,7 +203,6 @@ def insert_numbers(grid):
 				grid[row][col] = calculate_value(grid, row, col)
 
 	return grid
-
 
 def create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info):
 	grid_dimension = {"row": len(in_memory_grid), "col": len(in_memory_grid[0])}
@@ -194,9 +217,10 @@ def create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info):
 	
 	return {"grid": new_grid_with_mines_and_numbers, "mines_cord": mines_cord}
 
-
-def handle_flag(in_memory_grid, input_cell_info, flags_cord):
+def handle_flag(in_memory_grid, input_cell_info, flags_cord, time_stamp):
 	if input_cell_info["flag"]:
+		time_rn = time.time()
+		time_stamp.append(time_rn)
 		row = input_cell_info["input_row"]
 		col = input_cell_info["input_col"]
 
@@ -237,7 +261,6 @@ def showcells(grid, currgrid, rowno, colno):
             if currgrid[r][c] != 'F':
                 showcells(grid, currgrid, r, c)
 
-
 def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
 	row = input_cell_info["input_row"]
 	col = input_cell_info["input_col"]
@@ -265,21 +288,34 @@ def explore(in_memory_grid, solution_grid, input_cell_info, flags_cord):
 	else:
 		return
 
-
-
 def minesweeper():
 
 	flags_cord = []
 	mines_cord = [-1]
 	solution_grid = []
+	time_stamp = []
 
 	welcome()
+	time.sleep(1)
 	player_info = show_menu()
+	time.sleep(1)
 	(in_memory_grid, number_of_mines) = create_gameboard(player_info)
 	
 	while True:
 		if set(flags_cord) == set(mines_cord):
-			print "You win!"
+			show_you_got_it_message()
+			for i in range(4):
+				print ""
+			time.sleep(1)
+			print("Generating Performance Report ...")
+			time.sleep(2)
+			start_time = time_stamp[0]
+			time_lst = [time_t - start_time for time_t in time_stamp[1:]]
+			plt.plot(range(1, 11), time_lst, 'ro-', markersize=20, clip_on=False, zorder=100)
+			plt.xlabel('Mines')
+			plt.ylabel('Time Taken (in seconds)')
+			plt.suptitle('Time Taken v/s Mines Identified Plot')
+			plt.show()
 			return
 
 		input_cell_info = get_user_input_validate(in_memory_grid)
@@ -287,11 +323,13 @@ def minesweeper():
 			grid_info = create_minesweeper_grid(in_memory_grid, number_of_mines, input_cell_info)
 			mines_cord = grid_info["mines_cord"]
 			solution_grid = grid_info["grid"]
+			time_rn = time.time()
+			time_stamp.append(time_rn)
 
-		handle_flag(in_memory_grid, input_cell_info, flags_cord)
+		handle_flag(in_memory_grid, input_cell_info, flags_cord, time_stamp)
 		
 		if explosion(solution_grid, input_cell_info, flags_cord):
-			show_game_over_message()
+			show_game_over_message(solution_grid)
 			return
 
 		explore(in_memory_grid, solution_grid, input_cell_info, flags_cord)
@@ -299,5 +337,8 @@ def minesweeper():
 		cell = in_memory_grid[input_cell_info["input_row"]][input_cell_info["input_col"]]
 
 		show_gameboard(in_memory_grid)
+
+		for i in solution_grid:
+			print i
 
 minesweeper()
