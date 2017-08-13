@@ -345,7 +345,7 @@ def generate_report(time_stamp):
 	time.sleep(2)
 	start_time = time_stamp[0]
 	time_lst = [time_t - start_time for time_t in time_stamp[1:]]
-	plt.plot(range(1, 11), time_lst, 'ro-', markersize=20, clip_on=False, zorder=100)
+	plt.plot(range(1, len(time_lst) + 1), time_lst, 'ro-', markersize=20, clip_on=False, zorder=100)
 	plt.xlabel('Mines')
 	plt.ylabel('Time Taken (in seconds)')
 	plt.suptitle('Time Taken v/s Mines Identified Plot')
